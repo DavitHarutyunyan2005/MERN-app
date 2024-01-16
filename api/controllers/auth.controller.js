@@ -1,9 +1,8 @@
 import User from '../models/user.models.js';
-import { MongoClient } from 'mongodb';
 import bcryptjs from 'bcryptjs';
 import errorHandler from '../utils/error.js';
 import jwt from 'jsonwebtoken';
-import dotenv  from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
 
@@ -18,23 +17,23 @@ export const signup = async (req, res, next) => {
 
     try {
         const existingUser = await User.findOne({ username });
-        const existingEmail = await User.findOne({email});
-        if(existingUser){
+        const existingEmail = await User.findOne({ email });
+        if (existingUser) {
             next(errorHandler(409, "Username is not available."))
         }
-        if(existingEmail){
+        if (existingEmail) {
             next(errorHandler(409, "Email is not available."))
         }
         await newUser.save();
-        res.status(201).json( "User created successfully!" );
-        
+        res.status(201).json("User created successfully!");
+
 
     } catch (err) {
         console.error("Error:", err);
         // next(err);
         next(errorHandler(550, 'error from the function.'));
 
-    } 
+    }
 };
 
 
@@ -46,51 +45,62 @@ export const signin = async (req, res, next) => {
     const { username, password } = req.body;
 
     try {
-        
+
         const validUser = await User.findOne({ username });
 
         if (!validUser) return next(errorHandler(404, "User wasn't found."));
-        
+
         const validPassword = bcryptjs.compareSync(password, validUser.password);
 
         if (!validPassword) return next(errorHandler(401, "Wrong credentials."));
 
         const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
-        const {password: pass, ...rest} = validUser._doc;
-        res.cookie('access_token', token, {httpOnly: true}).status(200).json(rest);
+        const { password: pass, ...rest } = validUser._doc;
+        res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
 
     } catch (error) {
-        next(error);  
+        next(error);
         console.log(error);
-    } 
+    }
 };
 
 //google and facebook auth
 
-export const google  = async (req, res, next) => {
+export const google = async (req, res, next) => {
     try {
-        const user = await User.findOne({email: req.body.email});
-        if(user){
-            const token = jwt.sign({id: user._id}, process.env.JWT_SECRET);
-            const {password: pass, ...rest} = user._doc;
+        const user = await User.findOne({ email: req.body.email });
+        if (user) {
+            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+            const { password: pass, ...rest } = user._doc;
             res
-            .cookie('access_token', token, {httpOnly: true})
-            .status(200)
-            .json(rest);
-            
-        }else{
+                .cookie('access_token', token, { httpOnly: true })
+                .status(200)
+                .json(rest);
+
+        } else {
             const randomDigits = Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit number
             const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
             const hashedPassword = bcryptjs.hashSync(generatedPassword, 13);
-            const newUser = new User({username: req.body.name.split(" ").join("").toLowerCase() +randomDigits.toString(), email: req.body.email, password: hashedPassword, avatar: req.body.photo});
+            const newUser = new User({ username: req.body.name.split(" ").join("").toLowerCase() + randomDigits.toString(), email: req.body.email, password: hashedPassword, avatar: req.body.photo });
             await newUser.save();
-            const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET);
-            const {password: pass, ...rest } = newUser._doc;
-            res.cookie('access_token', token, { httpOnly: true}).status(200).json(rest);
+            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+            const { password: pass, ...rest } = newUser._doc;
+            res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
 
         }
     } catch (error) {
         next(error);
-        
+
     }
 }
+
+
+
+export const signOut = async (req, res, next) => {
+    try {
+        res.clearCookie('access_token');
+        res.status(200).json('User has been logged out!');
+    } catch (error) {
+        next(error);
+    }
+};
