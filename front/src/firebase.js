@@ -3,9 +3,8 @@ import { initializeApp } from 'firebase/app';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDrQzcY1G1rT2yncHwb5SLpzUO9pviXRdA",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: "mernapp-d6b11.firebaseapp.com",
     projectId: "mernapp-d6b11",
     storageBucket: "mernapp-d6b11.appspot.com",
