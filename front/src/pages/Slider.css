@@ -1,0 +1,31 @@
+#slider-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#slider-image {
+    max-width: 80%; 
+    max-height: 80%; 
+    padding-left: 20%;
+    width: auto;
+    height: auto;
+}
+
+.slick-prev,
+.slick-next {
+    font-size: 24px; /* Adjust the font size as needed */
+    color: rgb(247, 16, 16); /* Adjust the arrow color as needed */
+    z-index: 4; /* Ensure arrows appear above the images */
+}
+
+.slick-prev {
+    left: 10px; /* Adjust the left position as needed */
+    color: brown;
+}
+
+.slick-next {
+    right: 10px; /* Adjust the right position as needed */
+    color: blue;
+
+}

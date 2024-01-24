@@ -1,3 +1,4 @@
+//Auth Controller
 import User from '../models/user.models.js';
 import bcryptjs from 'bcryptjs';
 import errorHandler from '../utils/error.js';
@@ -10,27 +11,32 @@ dotenv.config();
 
 
 export const signup = async (req, res, next) => {
-    const { username, email, password } = req.body;
+    const { username, email, password } = req.body;                  
     const hashedPassword = bcryptjs.hashSync(password, 13);
     const newUser = new User({ username, email, password: hashedPassword });
+    
 
 
     try {
         const existingUser = await User.findOne({ username });
         const existingEmail = await User.findOne({ email });
         if (existingUser) {
-            next(errorHandler(409, "Username is not available."))
+            return  next(errorHandler(409, "Username is not available"))
         }
+        if(username.length < 6) return next(errorHandler(422, 'Username must contain at least 6 characters'));
+
         if (existingEmail) {
-            next(errorHandler(409, "Email is not available."))
+            return next(errorHandler(409, "Email is not available"))
         }
+
+        if (password.length < 8) return next(errorHandler(422, 'Password must contain at least 8 characters'));
+                    
         await newUser.save();
-        res.status(201).json("User created successfully!");
+        res.status(201).json("User created successfully");
 
 
     } catch (err) {
         console.error("Error:", err);
-        // next(err);
         next(errorHandler(550, 'error from the function.'));
 
     }
@@ -42,17 +48,17 @@ export const signup = async (req, res, next) => {
 
 export const signin = async (req, res, next) => {
 
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
 
-        const validUser = await User.findOne({ username });
+        const validUser = await User.findOne({ email });
 
-        if (!validUser) return next(errorHandler(404, "User wasn't found."));
+        if (!validUser) return next(errorHandler(404, "Email does not exist"));
 
         const validPassword = bcryptjs.compareSync(password, validUser.password);
 
-        if (!validPassword) return next(errorHandler(401, "Wrong credentials."));
+        if (!validPassword) return next(errorHandler(401, "Password is invalid"));
 
         const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
         const { password: pass, ...rest } = validUser._doc;
