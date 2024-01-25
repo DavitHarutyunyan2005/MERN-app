@@ -76,16 +76,16 @@ export default function Search() {
                 const res = await fetch(`/api/listing/get?${searchQuery}`);
                 const data = await res.json();
 
-                if(data.success === false){
+                if (data.success === false) {
                     console.log(data.message);
                 }
-    
+
                 console.log("API Response Data:", data);
-    
+
                 const listingAddresses = data.map((listing) => listing.address);
                 setAddresses(listingAddresses);
-    
-    
+
+
                 if (data.length > 8) {
                     setShowMore(true);
                 } else {
@@ -136,27 +136,16 @@ export default function Search() {
         }
     }
 
-
     const handleAddressChange = (address) => {
-
         try {
-            const updatedAddresses = [...sidebardata.selectedAddresses];
-
-            if (updatedAddresses.includes(address)) {
-                const indexToRemove = updatedAddresses.indexOf(address);
-                updatedAddresses.splice(indexToRemove, 1);
-
-            } else {
-                updatedAddresses.push(address);
-            }
-
-            setSidebardata({ ...sidebardata, selectedAddresses: updatedAddresses });
-
+            const updatedAddress = sidebardata.selectedAddresses === address ? '' : address;
+    
+            setSidebardata({ ...sidebardata, selectedAddresses: updatedAddress });
         } catch (error) {
             console.log(error);
         }
-    }
-
+    };
+    
 
 
 
@@ -171,7 +160,6 @@ export default function Search() {
         urlParams.set('sort', sidebardata.sort);
         urlParams.set('order', sidebardata.order);
         urlParams.set('searchAddress', sidebardata.selectedAddresses);
-        // urlParams.set('searchAddress', sidebardata.selectedAddresses.join(','));
         const searchQuery = urlParams.toString();
         console.log(searchQuery);
         navigate(`/search?${searchQuery}`);
@@ -301,16 +289,17 @@ export default function Search() {
                             {getSortedAddresses().map((address, index) => (
                                 <div key={index} className='flex gap-2'>
                                     <input
-                                        type='checkbox'
-                                        checked={sidebardata.selectedAddresses.includes(address)}
+                                        type='checkbox' 
+                                        checked={sidebardata.selectedAddresses === address}
                                         onChange={() => handleAddressChange(address)}
                                         className='hover:cursor-pointer'
-                                        id={`addressCheckbox_${index}`}
+                                        id={`addressRadio_${index}`}
                                     />
-                                    <label htmlFor={`addressCheckbox_${index}`}>{address}</label>
+                                    <label htmlFor={`addressRadio_${index}`}>{address}</label>
                                     <span>({countOccurrences(address)})</span>
                                 </div>
                             ))}
+
                         </div>
                     </div>
 

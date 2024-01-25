@@ -1,4 +1,3 @@
-//Listing controller
 import Listing from "../models/listing.model.js";
 import errorHandler from "../utils/error.js";
 
@@ -90,14 +89,6 @@ export const getListings = async (req, res, next) => {
         let addresses = req.query.searchAddress || '';
 
 
-
-        // if (addresses) {
-
-        
-        //     addresses = { $in: addresses };
-        // };
-
-        // alert('addresses: ' + addresses);
 
         let listings = await Listing.find({
             name: { $regex: searchTerm, $options: 'i' },
